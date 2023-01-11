@@ -1,6 +1,9 @@
 #!/bin/bash
 
 set -e
+set -u
+
+OVPN_CONF=riseup-ovpn.conf
 
 # Download riseup CA
 curl -s https://0xacab.org/leap/bitmask-vpn/-/raw/main/providers/riseup/riseup-ca.crt -o riseup-ca.crt
@@ -9,13 +12,14 @@ curl -s --cacert riseup-ca.crt https://api.black.riseup.net/3/cert -o riseup-vpn
 chmod 0600 riseup-vpn.pem
 
 # Copy the sample openvpn conf
-cp riseup-ovpn.sample.conf riseup-ovpn.conf
-sed -i 's/^remote .*$//g' riseup-ovpn.conf
+cp riseup-ovpn.sample.conf $OVPN_CONF
+sed -i 's/^remote .*$//g' $OVPN_CONF
 
 # Get the VPN IP list, and add them to openvpn conf
 IP_LIST=$(curl -s --cacert riseup-ca.crt https://api.black.riseup.net/3/config/eip-service.json | jq -r .gateways[].ip_address)
 for ip in $IP_LIST; do
-    sed -i "/^remote-random$/i remote $ip 1194" riseup-ovpn.conf
+    sed -i "/^remote-random$/i remote $ip 1194" $OVPN_CONF
 done
 
-echo "Ok"
+echo "[+] OpenVPN conf was created with success, you can now run :"
+echo "sudo openvpn --config $OVPN_CONF"
