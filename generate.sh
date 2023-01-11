@@ -9,13 +9,13 @@ curl -s --cacert riseup-ca.crt https://api.black.riseup.net/3/cert -o riseup-vpn
 chmod 0600 riseup-vpn.pem
 
 # Copy the sample openvpn conf
-cp riseup.ovpn.sample.conf riseup.ovpn.conf
-sed -i 's/^remote .*$//g' riseup.ovpn.conf
+cp riseup-ovpn.sample.conf riseup-ovpn.conf
+sed -i 's/^remote .*$//g' riseup-ovpn.conf
 
 # Get the VPN IP list, and add them to openvpn conf
 IP_LIST=$(curl -s --cacert riseup-ca.crt https://api.black.riseup.net/3/config/eip-service.json | jq -r .gateways[].ip_address)
 for ip in $IP_LIST; do
-    sed -i "/^remote-random$/i remote $ip 1194" riseup.ovpn.conf
+    sed -i "/^remote-random$/i remote $ip 1194" riseup-ovpn.conf
 done
 
 echo "Ok"

@@ -9,7 +9,7 @@ Bash script to generate OpenVPN config file for [RiseupVPN](https://riseup.net/e
 ./generate.sh
 
 # Connect to RiseupVPN
-sudo openvpn --config riseup.ovpn.conf
+sudo openvpn --config riseup-ovpn.conf
 
 # Check your ip address
 curl ipinfo.io
