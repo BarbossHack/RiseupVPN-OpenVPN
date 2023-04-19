@@ -6,7 +6,7 @@ set -u
 OVPN_CONF=riseup-ovpn.conf
 
 # Download riseup CA
-curl -s https://0xacab.org/leap/bitmask-vpn/-/raw/main/providers/riseup/riseup-ca.crt -o riseup-ca.crt
+curl -s https://black.riseup.net/ca.crt -o riseup-ca.crt
 # Download new VPN client certs (private and public keys)
 curl -s --cacert riseup-ca.crt https://api.black.riseup.net/3/cert -o riseup-vpn.pem
 chmod 0600 riseup-vpn.pem
