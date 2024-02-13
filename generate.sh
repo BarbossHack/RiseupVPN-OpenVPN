@@ -3,9 +3,9 @@
 set -e
 set -u
 
-# Debug mode
-if [ $# == 1 ] && [ "$1" == "-d" ]; then
-    DEBUG=1
+# Verbose mode
+if [ $# == 1 ] && [ "$1" == "-v" ]; then
+    VERBOSE=1
     set -x
 fi
 
@@ -14,7 +14,7 @@ OVPN_CONF=riseup-ovpn.conf
 echo "[+] Please wait, riseup API is slow..."
 
 # Download new VPN client certs (private and public keys)
-curl ${DEBUG:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/cert -o riseup-vpn.pem
+curl ${VERBOSE:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/cert -o riseup-vpn.pem
 chmod 0600 riseup-vpn.pem
 
 # Copy the sample openvpn conf
@@ -22,7 +22,7 @@ cp riseup-ovpn.sample.conf $OVPN_CONF
 sed -i 's/^remote .*$//g' $OVPN_CONF
 
 # Get the VPN IP list, and add them to openvpn conf
-gateways=$(curl ${DEBUG:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
+gateways=$(curl ${VERBOSE:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
 for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
 
     gateway=$(echo $gateway_b64 | base64 --decode)
