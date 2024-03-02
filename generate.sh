@@ -11,10 +11,10 @@ fi
 
 OVPN_CONF=riseup-ovpn.conf
 
-echo "[+] Please wait, riseup API is slow..."
+echo -e "\e[30mPlease wait, riseup API is slow...\e[0m"
 
 # Download new VPN client certs (private and public keys)
-curl ${VERBOSE:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/cert -o riseup-vpn.pem
+curl ${VERBOSE:+-v} -sS --fail --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/cert -o riseup-vpn.pem
 chmod 0600 riseup-vpn.pem
 
 # Copy the sample openvpn conf
@@ -22,7 +22,7 @@ cp riseup-ovpn.sample.conf $OVPN_CONF
 sed -i 's/^remote .*$//g' $OVPN_CONF
 
 # Get the VPN IP list, and add them to openvpn conf
-gateways=$(curl ${VERBOSE:+-v} -s --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
+gateways=$(curl ${VERBOSE:+-v} -sS --fail --connect-timeout 5 --retry 5 https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
 for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
 
     gateway=$(echo $gateway_b64 | base64 --decode)
@@ -36,5 +36,5 @@ for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
     done
 done
 
-echo "[+] OpenVPN conf was created with success, you can now run :"
+echo -e "\e[42m[+]\e[0m OpenVPN conf was created with success, you can now run:"
 echo "sudo openvpn --config $OVPN_CONF"
