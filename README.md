@@ -6,7 +6,7 @@ Bash script to generate OpenVPN config file for [RiseupVPN](https://riseup.net/e
 
 ```bash
 # Generate new conf and client certs
-bash generate.sh
+./generate.sh
 
 # Connect to RiseupVPN
 sudo openvpn --config riseup-ovpn.conf
