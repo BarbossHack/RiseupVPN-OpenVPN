@@ -41,3 +41,7 @@ A free (funded through donations) and privacy oriented VPN.
 * <https://riseup.net/en/about-us/policy/government-faq>
 * <https://gist.github.com/crass/7952d79b596a89e067292ea68e3f0754>
 * <https://openvpn.net/community-resources/reference-manual-for-openvpn-2-6/>
+
+## Donate
+
+[Liberapay, Paypal, Bitcoin](https://riseup.net/en/vpn#donate)
