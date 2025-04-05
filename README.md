@@ -1,6 +1,6 @@
 # RiseupVPN - OpenVPN
 
-Bash script to generate OpenVPN config file for [RiseupVPN](https://riseup.net/en/vpn)
+Simple Bash script that generates an OpenVPN configuration file for use with [RiseupVPN](https://riseup.net/en/vpn)
 
 ## Usage
 
