@@ -24,10 +24,12 @@ key_cert=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeo
 
 # Copy the sample openvpn conf
 cp riseup-ovpn.sample.conf $OVPN_CONF
-sed -i 's/^remote .*$//g' $OVPN_CONF
+sed -i '/^remote .*$/d' $OVPN_CONF
 sed -i "s/^verb .*$/verb $VERB/g" $OVPN_CONF
-echo -e "\n<key>\n$key_cert\n</key>" >>$OVPN_CONF
-echo -e "\n<cert>\n$key_cert\n</cert>" >>$OVPN_CONF
+key=$(echo "$key_cert" | sed -e '/BEGIN RSA/,/END RSA/!d')
+cert=$(echo "$key_cert" | sed -e '/BEGIN CERTIFICATE/,/END CERTIFICATE/!d')
+echo -e "\n<key>\n$key\n</key>" >>$OVPN_CONF
+echo -e "\n<cert>\n$cert\n</cert>" >>$OVPN_CONF
 
 # Get the VPN IP list, and add them to openvpn conf
 if [ ! -z ${CURL_NO_SILENT+x} ]; then echo "curl riseup servers list from https://api.black.riseup.net/3/config/eip-service.json"; fi
