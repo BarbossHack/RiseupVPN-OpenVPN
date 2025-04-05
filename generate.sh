@@ -3,11 +3,14 @@
 set -eu
 
 # Verbose mode
+VERB=1
 if [ $# == 1 ] && [ "$1" == "-v" ]; then
     CURL_NO_SILENT=
+    VERB=3
 elif [ $# == 1 ] && [ "$1" == "-vvv" ]; then
     CURL_VERBOSE=1
     CURL_NO_SILENT=
+    VERB=5
     set -x
 fi
 
@@ -22,6 +25,7 @@ key_cert=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeo
 # Copy the sample openvpn conf
 cp riseup-ovpn.sample.conf $OVPN_CONF
 sed -i 's/^remote .*$//g' $OVPN_CONF
+sed -i "s/^verb .*$/verb $VERB/g" $OVPN_CONF
 echo -e "\n<key>\n$key_cert\n</key>" >>$OVPN_CONF
 echo -e "\n<cert>\n$key_cert\n</cert>" >>$OVPN_CONF
 
