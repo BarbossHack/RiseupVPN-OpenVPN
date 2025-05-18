@@ -2,7 +2,7 @@
 
 set -eu
 
-ARGS=" $@ "
+ARGS=" $* "
 VERB=1
 if [[ "$ARGS" = *" -v "* ]]; then
     CURL_NO_SILENT=
@@ -19,7 +19,8 @@ OVPN_CONF=riseup-ovpn.conf
 echo "Please wait, riseup API can be very slow..."
 
 # Download new VPN client certs (private and public keys)
-if [ ! -z ${CURL_NO_SILENT+x} ]; then echo "curl riseup certificate from https://api.black.riseup.net/3/cert"; fi
+if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup certificate from https://api.black.riseup.net/3/cert"; fi
+# shellcheck disable=SC2086
 key_cert=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: text/html" https://api.black.riseup.net/3/cert)
 
 # Copy the sample openvpn conf
@@ -40,20 +41,21 @@ pull-filter ignore "ifconfig-ipv6"
 pull-filter ignore "redirect-gateway"
 block-ipv6
 redirect-gateway def1' >>$OVPN_CONF
-elif [ ! $(ip a | grep inet6 >/dev/null) ]; then
+elif ! ip a | grep inet6; then
     echo -e "\e[33;3mIPv6 appears to be disabled on your host. You may want to explicitly disable it using --no-ipv6\e[0m"
 fi
 
 # Get the VPN IP list, and add them to openvpn conf
-if [ ! -z ${CURL_NO_SILENT+x} ]; then echo "curl riseup servers list from https://api.black.riseup.net/3/config/eip-service.json"; fi
+if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup servers list from https://api.black.riseup.net/3/config/eip-service.json"; fi
+# shellcheck disable=SC2086
 gateways=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: application/json" https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
 
 for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
-    gateway=$(echo $gateway_b64 | base64 --decode)
-    ip_address=$(echo $gateway | jq -r '.ip_address')
-    host=$(echo $gateway | jq -r '.host')
-    location=$(echo $gateway | jq -r '.location')
-    ports=$(echo $gateway | jq -r '.capabilities.transport[] | select( .type | contains("openvpn")) | .ports[]')
+    gateway=$(echo "$gateway_b64" | base64 --decode)
+    ip_address=$(echo "$gateway" | jq -r '.ip_address')
+    host=$(echo "$gateway" | jq -r '.host')
+    location=$(echo "$gateway" | jq -r '.location')
+    ports=$(echo "$gateway" | jq -r '.capabilities.transport[] | select( .type | contains("openvpn")) | .ports[]')
     for port in $ports; do
         sed -i "/^remote-random$/i remote $ip_address $port # $host ($location)" $OVPN_CONF
     done
