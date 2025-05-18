@@ -2,12 +2,12 @@
 
 set -eu
 
-# Verbose mode
+ARGS=" $@ "
 VERB=1
-if [ $# == 1 ] && [ "$1" == "-v" ]; then
+if [[ "$ARGS" = *" -v "* ]]; then
     CURL_NO_SILENT=
     VERB=3
-elif [ $# == 1 ] && [ "$1" == "-vvv" ]; then
+elif [[ "$ARGS" = *" -vvv "* ]]; then
     CURL_VERBOSE=1
     CURL_NO_SILENT=
     VERB=5
@@ -15,12 +15,6 @@ elif [ $# == 1 ] && [ "$1" == "-vvv" ]; then
 fi
 
 OVPN_CONF=riseup-ovpn.conf
-
-IPV6_DISABLED=false
-if [ ! $(ip a | grep inet6 >/dev/null) ]; then
-    echo -e "\e[33;3mIPv6 appears to be disabled on your host; the generated configuration will not include IPv6 anti-leak protection.\e[0m"
-    IPV6_DISABLED=true
-fi
 
 echo "Please wait, riseup API can be very slow..."
 
@@ -37,7 +31,8 @@ cert=$(echo "$key_cert" | sed -e '/BEGIN CERTIFICATE/,/END CERTIFICATE/!d')
 echo -e "\n<key>\n$key\n</key>" >>$OVPN_CONF
 echo -e "\n<cert>\n$cert\n</cert>" >>$OVPN_CONF
 
-if [ $IPV6_DISABLED = true ]; then
+if [[ "$ARGS" = *" --no-ipv6 "* ]]; then
+    echo -e "\e[33;3mIPv6 disabled.\e[0m"
     echo '
 pull-filter ignore "tun-ipv6"
 pull-filter ignore "route-ipv6"
@@ -45,6 +40,8 @@ pull-filter ignore "ifconfig-ipv6"
 pull-filter ignore "redirect-gateway"
 block-ipv6
 redirect-gateway def1' >>$OVPN_CONF
+elif [ ! $(ip a | grep inet6 >/dev/null) ]; then
+    echo -e "\e[33;3mIPv6 appears to be disabled on your host. You may want to explicitly disable it using --no-ipv6\e[0m"
 fi
 
 # Get the VPN IP list, and add them to openvpn conf

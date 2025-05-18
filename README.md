@@ -6,7 +6,7 @@ Simple Bash script that generates an OpenVPN configuration file for use with [Ri
 
 ```bash
 # Generate new conf and client certs
-./generate.sh
+./generate.sh [options]
 
 # Connect to RiseupVPN
 sudo openvpn --config riseup-ovpn.conf
@@ -14,6 +14,12 @@ sudo openvpn --config riseup-ovpn.conf
 # Check your ip address
 curl ipinfo.io
 ```
+
+| Options     | Description                                                                                                    |
+| ----------- | -------------------------------------------------------------------------------------------------------------- |
+| `-v`        | Verbose mode.                                                                                                  |
+| `-vvv`      | Very verbose mode (enables `set -x` for full debugging output).                                                |
+| `--no-ipv6` | Explicitly disables IPv6 in the generated OpenVPN configuration. Required if IPv6 is disabled on your host.    |
 
 ## What is RiseupVPN ?
 
