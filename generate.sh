@@ -2,6 +2,13 @@
 
 set -eu
 
+if ! command -v jq >/dev/null 2>&1; then
+    echo "Please install jq to run this script."
+    echo "  $ sudo apt install jq"
+    echo "  $ sudo dnf install jq"
+    exit 1
+fi
+
 ARGS=" $* "
 VERB=1
 if [[ "$ARGS" = *" -v "* ]]; then
