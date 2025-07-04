@@ -47,6 +47,7 @@ echo -e "\n<cert>\n$cert\n</cert>" >>$OVPN_CONF
 if [[ "$ARGS" = *" --no-ipv6 "* ]]; then
     echo -e "\e[33;3mIPv6 disabled.\e[0m"
     echo '
+# Disable IPv6
 pull-filter ignore "tun-ipv6"
 pull-filter ignore "route-ipv6"
 pull-filter ignore "ifconfig-ipv6"
@@ -55,6 +56,18 @@ block-ipv6
 redirect-gateway def1' >>$OVPN_CONF
 elif ! ip a | grep inet6 >/dev/null 2>&1; then
     echo -e "\e[33;3mIPv6 appears to be disabled on your host. You may want to explicitly disable it using --no-ipv6\e[0m"
+fi
+
+if [[ "$ARGS" = *" --no-dns-leak "* ]]; then
+    echo -e "\e[33;3mAvoid using ISP dns servers.\e[0m"
+    echo '
+# Avoid using ISP dns servers
+pull-filter ignore "block-outside-dns"
+pull-filter ignore "dhcp-option"
+dhcp-option DNS 1.1.1.1
+script-security 2
+up "/usr/bin/env bash -c '\''/etc/openvpn/update-resolv-conf $* || /etc/openvpn/up.sh $*'\''"
+down "/usr/bin/env bash -c '\''/etc/openvpn/update-resolv-conf $* || /etc/openvpn/down.sh $*'\''"' >>$OVPN_CONF
 fi
 
 # Get the VPN IP list, and add them to openvpn conf
