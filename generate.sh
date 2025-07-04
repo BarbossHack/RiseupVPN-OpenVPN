@@ -20,8 +20,9 @@ OVPN_CONF=riseup-ovpn.conf
 if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1 || ! command -v ip >/dev/null 2>&1; then
     echo -e "\e[31m[-] Please install the following requirements to run this script:\e[0m"
     echo "Debian    $ apt install -y jq curl iproute2"
-    echo "Fedora    $ dnf install -y jq curl iproute2"
+    echo "Fedora    $ dnf install -y jq curl iproute"
     echo "Alpine    $ apk add jq curl iproute2"
+    echo "OpenWrt   $ apk add jq curl iproute2"
     echo "Nixos     $ nix-shell -p jq curl iproute2"
     echo "Archlinux $ pacman -Sy --noconfirm jq curl iproute2"
     exit 1
