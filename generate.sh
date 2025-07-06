@@ -14,6 +14,11 @@ elif [[ "$ARGS" = *" -vvv "* ]]; then
     set -x
 fi
 
+SORT_BY_FASTEST=false
+if [[ "$ARGS" = *" --sort-by-fastest "* ]]; then
+    SORT_BY_FASTEST=true
+fi
+
 OVPN_CONF=riseup-ovpn.conf
 
 # Check requirements
@@ -75,16 +80,40 @@ if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup servers list from https:
 # shellcheck disable=SC2086
 gateways=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: application/json" https://api.black.riseup.net/3/config/eip-service.json | jq '.gateways')
 
+if [[ $SORT_BY_FASTEST = true ]]; then
+    echo "Sorting servers by fastest connection speed..."
+fi
+
 for gateway_b64 in $(echo "$gateways" | jq -r '.[] | @base64'); do
     gateway=$(echo "$gateway_b64" | base64 -d)
     ip_address=$(echo "$gateway" | jq -r '.ip_address')
     host=$(echo "$gateway" | jq -r '.host')
-    location=$(echo "$gateway" | jq -r '.location')
+    # Replace spaces in $location with underscores to maintain equal word count in $remote
+    location=$(echo "$gateway" | jq -r '.location' | sed "s/ /_/g")
     ports=$(echo "$gateway" | jq -r '.capabilities.transport[] | select( .type | contains("openvpn")) | .ports[]')
+
+    if [[ $SORT_BY_FASTEST = true ]]; then
+        ping=$(ping -c 5 $ip_address | tail -n 1 | awk '{print $4}' | cut -d '/' -f 2)
+        echo "Found average ping to $host ($location): $ping ms"
+    fi
+
     for port in $ports; do
-        sed -i "/^remote-random$/i remote $ip_address $port # $host ($location)" $OVPN_CONF
+	remote="remote $ip_address $port # $host ($location)"
+	if [[ $SORT_BY_FASTEST == true ]]; then
+		remote="$remote $ping ms"
+	fi
+
+	sed -i "/^remote-random$/i $remote" $OVPN_CONF
     done
 done
+
+if [[ $SORT_BY_FASTEST = true ]]; then
+    sorted=$(grep "remote " $OVPN_CONF | sort -n -s -k 7 | sed 's/$/\\/')
+    # Remove existing remote addresses and replace them with their sorted version
+    sed -i "/remote/d" $OVPN_CONF
+    sed -i "/# Riseup available servers/a $sorted" $OVPN_CONF
+    sed -i "/remote/s/\\\//" $OVPN_CONF
+fi
 
 echo "OpenVPN conf was created with success !"
 echo -e "\e[36m$ sudo openvpn --config $OVPN_CONF\e[0m"
