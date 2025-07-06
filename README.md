@@ -15,12 +15,14 @@ sudo openvpn --config riseup-ovpn.conf
 curl ipinfo.io
 ```
 
-| Options           | Description                                                                                                    |
-| ----------------- | -------------------------------------------------------------------------------------------------------------- |
-| `-v`              | Verbose mode.                                                                                                  |
-| `-vvv`            | Very verbose mode (enables `set -x` for full debugging output).                                                |
-| `--no-ipv6`       | Explicitly disables IPv6 in the generated OpenVPN configuration. Required if IPv6 is disabled on your host.    |
-| `--no-dns-leak`   | Add up/down scripts to avoid using your ISP's DNS servers (DNS queries go through the tunnel anyway).          |
+| Options               | Description                                                                                                    |
+| --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `-v`                  | Verbose mode.                                                                                                  |
+| `-vvv`                | Very verbose mode (enables `set -x` for full debugging output).                                                |
+| `--no-ipv6`           | Explicitly disables IPv6 in the generated OpenVPN configuration. Required if IPv6 is disabled on your host.    |
+| `--no-dns-leak`       | Add up/down scripts to avoid using your ISP's DNS servers (DNS queries go through the tunnel anyway).          |
+| `--sort-by-fastest`   | Sorts servers in the generated OpenVPN configuration by fastest connection speed.                              |
+
 
 ## What is RiseupVPN ?
 
