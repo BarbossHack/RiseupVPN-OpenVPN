@@ -34,6 +34,8 @@ echo "Please wait, riseup API can be very slow..."
 if [ -n "${CURL_NO_SILENT+x}" ]; then echo "curl riseup certificate from https://api.black.riseup.net/3/cert"; fi
 # shellcheck disable=SC2086
 key_cert=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: text/html" https://api.black.riseup.net/3/cert)
+# shellcheck disable=SC2086
+ca_cert=$(curl ${CURL_VERBOSE:+-v} ${CURL_NO_SILENT--sS} --fail --connect-timeout 10 --retry 3 -H "Accept: text/html" https://black.riseup.net/ca.crt)
 
 # Copy the sample openvpn conf
 cp riseup-ovpn.sample.conf $OVPN_CONF
@@ -43,6 +45,7 @@ key=$(echo "$key_cert" | sed -e '/BEGIN RSA/,/END RSA/!d')
 cert=$(echo "$key_cert" | sed -e '/BEGIN CERTIFICATE/,/END CERTIFICATE/!d')
 echo -e "\n<key>\n$key\n</key>" >>$OVPN_CONF
 echo -e "\n<cert>\n$cert\n</cert>" >>$OVPN_CONF
+echo -e "\n<ca>\n$ca_cert\n</ca>" >>$OVPN_CONF
 
 if [[ "$ARGS" = *" --no-ipv6 "* ]]; then
     echo -e "\e[33;3mIPv6 disabled.\e[0m"
