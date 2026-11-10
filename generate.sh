@@ -25,6 +25,7 @@ if ! command -v jq >/dev/null 2>&1 || ! command -v curl >/dev/null 2>&1 || ! com
     echo "OpenWrt   $ apk add jq curl iproute2"
     echo "Nixos     $ nix-shell -p jq curl iproute2"
     echo "Archlinux $ pacman -Sy --noconfirm jq curl iproute2"
+    echo "VoidLinux $ xbps-install -Sy jq curl iproute2"
     exit 1
 fi
 

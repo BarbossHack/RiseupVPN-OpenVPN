@@ -45,3 +45,9 @@ podman run -it --privileged --rm --pull=newer --device /dev/net/tun -v $PWD:/dat
 
 podman exec -it vpn sh -c "apk add curl && curl ipinfo.io"
 ```
+
+## VoidLinux
+
+```bash
+podman run -it --privileged --rm --pull=newer --device /dev/net/tun -v $PWD:/data:Z --workdir=/data ghcr.io/void-linux/void-buildroot-musl:latest bash -c "xbps-install -Sy jq curl iproute2 openvpn && ./generate.sh && (openvpn --config riseup-ovpn.conf &) && sleep 7 && curl -v --connect-timeout 10 ipinfo.io"
+```
